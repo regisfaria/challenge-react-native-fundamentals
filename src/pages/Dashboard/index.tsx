@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 
-import { View, Image } from 'react-native';
+import { View } from 'react-native';
 
 import formatValue from '../../utils/formatValue';
 import { useCart } from '../../hooks/cart';
@@ -29,27 +29,31 @@ interface Product {
 }
 
 const Dashboard: React.FC = () => {
-  const { addToCart } = useCart();
+  const { addToCart, increment, products } = useCart();
 
-  const [products, setProducts] = useState<Product[]>([]);
+  const [apiProducts, setApiProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    async function loadProducts(): Promise<void> {
-      // TODO
-    }
-
-    loadProducts();
+    api.get('/products').then(response => {
+      setApiProducts(response.data);
+    });
   }, []);
 
   function handleAddToCart(item: Product): void {
-    // TODO
+    const productExistInCart = products.find(product => product.id === item.id);
+
+    if (productExistInCart) {
+      increment(item.id);
+    } else {
+      addToCart(item);
+    }
   }
 
   return (
     <Container>
       <ProductContainer>
         <ProductList
-          data={products}
+          data={apiProducts}
           keyExtractor={item => item.id}
           ListFooterComponent={<View />}
           ListFooterComponentStyle={{
